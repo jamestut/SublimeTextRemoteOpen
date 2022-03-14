@@ -1,0 +1,9 @@
+[
+	{ "caption": "-", "id": "remote-open-tab-context-separator-1" },
+	{
+		"caption": "Copy Remote Path",
+		"id": "tab-context-copy-remote-path",
+		"command": "tab_context_copy_remote_path",
+		"args": { "group": -1, "index": -1 }
+	},
+]

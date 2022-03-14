@@ -1,0 +1,6 @@
+[
+    {
+        "caption": "Remote Open: Open File using SSH",
+        "command": "remote_open_ssh"
+    }
+]
