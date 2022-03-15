@@ -3,8 +3,7 @@ import sublime_plugin
 
 from collections import namedtuple
 import os
-import tempfile
-import subprocess
+import threading
 from . import ScpUtils
 
 class RemoteFileManager():
@@ -16,9 +15,14 @@ class RemoteFileManager():
 		self._pathmap = {}
 		# map key: window id | value: last opened hostname
 		self._last_hostname = {}
+		self._lock = threading.Lock()
 
 	def get_info(self, viewid):
-		return self._idmap.get(viewid, None)
+		# we need lock here because we expect this function to be called by ViewListener
+		# after the SCP operation finishes. There is a race between ST's calling of
+		# on_load vs whether we've put the views into _idmap
+		with self._lock:
+			return self._idmap.get(viewid, None)
 
 	def get_view_id(self, host, remotepath):
 		return _pathmap.get((host, remotepath), None)
@@ -43,18 +47,17 @@ class RemoteFileManager():
 			window.focus_view(view)
 			return
 
-		sublime.status_message(f'Opening file from {host}:{remotepath} ...')
-		localpath = ScpUtils.scp_download_to_tempfile(host, remotepath)
+		def on_finish(localpath):
+			if localpath is not None:
+				# see `get_info` why this lock is needed
+				with self._lock:
+					view = window.open_file(localpath)
+					viewid = view.id()
+					info = self._ViewInfo(host, remotepath, localpath, view)
+					self._idmap[viewid] = info
+					self._pathmap[pathkey] = viewid
 
-		# add to structure
-		if localpath is not None:
-			view = window.open_file(localpath)
-			viewid = view.id()
-			info = self._ViewInfo(host, remotepath, localpath, view)
-			self._idmap[viewid] = info
-			self._pathmap[pathkey] = viewid
-
-		sublime.status_message('')
+		ScpUtils.scp_download_to_tempfile(window, host, remotepath, on_finish)
 
 	def open_remote_path(self, window, query):
 		splt = query.split(":", 1)

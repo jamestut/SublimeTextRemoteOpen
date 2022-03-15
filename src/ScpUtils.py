@@ -1,5 +1,9 @@
+import sublime
 import subprocess
 import os
+import tempfile
+import subprocess
+from .BackgroundWorker import BackgroundWorker
 
 def scp_exec(pargs):
 	# BatchMode is to fail when server asked for password
@@ -10,7 +14,7 @@ def scp_exec(pargs):
 	except subprocess.CalledProcessError as ex:
 		raise RuntimeError(ex.stderr.decode('utf8'))
 
-def scp_download_to_tempfile(host, remotepath):
+def scp_download_to_tempfile(window, host, remotepath, on_done):
 	# work out the extension of the remote file
 	_, filename = os.path.split(remotepath)
 	suffix = None
@@ -26,15 +30,20 @@ def scp_download_to_tempfile(host, remotepath):
 	# we don't need the fd handle as SCP will do the job
 	os.close(fd)
 
-	try:
-		scp_exec((f'{host}:{remotepath}', localpath))
-	except Exception as ex:
+	def on_error(ex):
 		sublime.error_message(f"Error SCP to local. Note that password authentication is not supported.\n\n{ex}")
 		try:
 			os.unlink(localpath)
 		except:
 			pass
-		return None
 
-	# OK
-	return localpath
+	def do_scp(pargs):
+		scp_exec(pargs)
+		return localpath
+
+	BackgroundWorker(
+		lambda: do_scp((f'{host}:{remotepath}', localpath)),
+		on_done,
+		on_error,
+		"Opening remote file",
+		window).start()
