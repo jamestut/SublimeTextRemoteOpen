@@ -9,7 +9,6 @@ class ViewListener(sublime_plugin.ViewEventListener):
 		if info is None:
 			return
 		_, filename = os.path.split(info.remotepath)
-		self.view.set_name(f"(SSH) {info.host}: {filename}")
 		self.view.set_read_only(True)
 		self.view.set_scratch(True)
 

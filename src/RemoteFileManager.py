@@ -5,6 +5,7 @@ from collections import namedtuple
 import os
 import threading
 from . import ScpUtils
+from .TempFileUtils import delete_temp_file
 
 class RemoteFileManager():
 	_ViewInfo = namedtuple('ViewInfo', ['host','remotepath','localpath','view'])
@@ -34,7 +35,7 @@ class RemoteFileManager():
 		del self._idmap[viewid]
 		del self._pathmap[(info.host, info.remotepath)]
 		try:
-			os.unlink(info.localpath)
+			delete_temp_file(info.localpath)
 		except Exception as ex:
 			sublime.error_message(f"Error deleting temporary file '{info.localpath}': {ex}")
 

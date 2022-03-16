@@ -1,9 +1,9 @@
 import sublime
 import subprocess
 import os
-import tempfile
 import subprocess
 from .BackgroundWorker import BackgroundWorker
+from . import TempFileUtils
 
 def scp_exec(pargs):
 	# BatchMode is to fail when server asked for password
@@ -15,25 +15,17 @@ def scp_exec(pargs):
 		raise RuntimeError(ex.stderr.decode('utf8'))
 
 def scp_download_to_tempfile(window, host, remotepath, on_done):
-	# work out the extension of the remote file
-	_, filename = os.path.split(remotepath)
-	suffix = None
-	if '.' in filename:
-		_, suffix = filename.rsplit('.', 1)
-
 	try:
-		fd, localpath = tempfile.mkstemp(suffix=f'.{suffix}')
+		localpath = TempFileUtils.create_temp_file(host, remotepath)
 	except Exception as ex:
-		sublime.error_message(f"Error creating temporary file: {ex}")
+		sublime.error_message(f"Error creating temporary directory: {ex}")
 		return None
-
-	# we don't need the fd handle as SCP will do the job
-	os.close(fd)
+	print(f"SCP destination: {localpath}")
 
 	def on_error(ex):
 		sublime.error_message(f"Error SCP to local. Note that password authentication is not supported.\n\n{ex}")
 		try:
-			os.unlink(localpath)
+			TempFileUtils.delete_temp_file(localpath)
 		except:
 			pass
 
