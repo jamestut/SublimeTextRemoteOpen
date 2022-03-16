@@ -6,4 +6,10 @@
 		"command": "tab_context_copy_remote_path",
 		"args": { "group": -1, "index": -1 }
 	},
+  {
+		"caption": "Reload Remote File",
+		"id": "tab-context-reload-remote",
+		"command": "reload_remote",
+		"args": { "group": -1, "index": -1 }
+	}
 ]

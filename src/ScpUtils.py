@@ -14,14 +14,7 @@ def scp_exec(pargs):
 	except subprocess.CalledProcessError as ex:
 		raise RuntimeError(ex.stderr.decode('utf8'))
 
-def scp_download_to_tempfile(window, host, remotepath, on_done):
-	try:
-		localpath = TempFileUtils.create_temp_file(host, remotepath)
-	except Exception as ex:
-		sublime.error_message(f"Error creating temporary directory: {ex}")
-		return None
-	print(f"SCP destination: {localpath}")
-
+def scp_download(window, host, remotepath, localpath, on_done):
 	def on_error(ex):
 		sublime.error_message(f"Error SCP to local. Note that password authentication is not supported.\n\n{ex}")
 		try:
@@ -37,8 +30,18 @@ def scp_download_to_tempfile(window, host, remotepath, on_done):
 		lambda: do_scp((f'{host}:{remotepath}', localpath)),
 		on_done,
 		on_error,
-		"Opening remote file",
+		"Downloading remote file",
 		window).start()
+
+def scp_download_to_tempfile(window, host, remotepath, on_done):
+	try:
+		localpath = TempFileUtils.create_temp_file(host, remotepath)
+	except Exception as ex:
+		sublime.error_message(f"Error creating temporary directory: {ex}")
+		return None
+	print(f"SCP destination: {localpath}")
+
+	scp_download(window, host, remotepath, localpath, on_done)
 
 def scp_save_to_remote(window, host, remotepath, localpath):
 	def do_scp():

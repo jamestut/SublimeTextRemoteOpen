@@ -2,5 +2,9 @@
     {
         "caption": "Remote Open: Open File using SSH",
         "command": "remote_open_ssh"
+    },
+    {
+        "caption": "Remote Open: Reload Remote File",
+        "command": "reload_remote"
     }
 ]

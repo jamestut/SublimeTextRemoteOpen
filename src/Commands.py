@@ -1,6 +1,7 @@
 import sublime
 import sublime_plugin
 from .RemoteFileManager import manager
+from . import ScpUtils
 
 class RemoteOpenSsh(sublime_plugin.WindowCommand):
 	def run(self):
@@ -21,3 +22,21 @@ class TabContextCopyRemotePath(sublime_plugin.WindowCommand):
 
 	def _get_view_id(self, group, index):
 		return self.window.views_in_group(group)[index].id()
+
+class ReloadRemote(sublime_plugin.WindowCommand):
+	def run(self, group=-1, index=-1):
+		info = self._get_info(group, index)
+		if info is None:
+			return
+		ScpUtils.scp_download(self.window, info.host, info.remotepath, info.localpath, None)
+
+	def is_visible(self, group=-1, index=-1):
+		info = self._get_info(group, index)
+		return info is not None
+
+	def _get_info(self, group, index):
+		if group < 0 or index < 0:
+			view = sublime.active_window().active_view()
+		else:
+			view = self.window.views_in_group(group)[index]
+		return manager.get_info(view.id())
