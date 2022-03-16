@@ -9,8 +9,9 @@ class ViewListener(sublime_plugin.ViewEventListener):
 		if info is None:
 			return
 		_, filename = os.path.split(info.remotepath)
-		self.view.set_read_only(True)
-		self.view.set_scratch(True)
 
 	def on_close(self):
 		manager.handle_view_closed(self.view.id())
+
+	def on_post_save(self):
+		manager.save_remote_ssh_path(self.view.id())

@@ -44,7 +44,7 @@ def scp_save_to_remote(window, host, remotepath, localpath):
 	def do_scp():
 		scp_exec((localpath, f'{host}:{remotepath}'))
 
-	def on_done():
+	def on_done(*args):
 		window.status_message(f'{host}:{remotepath} saved')
 
 	def on_error(ex):

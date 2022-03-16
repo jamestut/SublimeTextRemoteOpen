@@ -65,9 +65,8 @@ class RemoteFileManager():
 		if info is None:
 			return
 
-		print("SAVE!!")
-
-		ScpUtils.scp_save_to_remote(info.view.window(), host, remotepath, localpath)
+		ScpUtils.scp_save_to_remote(info.view.window(),
+			info.host, info.remotepath, info.localpath)
 
 	def open_remote_path(self, window, query):
 		splt = query.split(":", 1)
