@@ -47,3 +47,20 @@ def scp_download_to_tempfile(window, host, remotepath, on_done):
 		on_error,
 		"Opening remote file",
 		window).start()
+
+def scp_save_to_remote(window, host, remotepath, localpath):
+	def do_scp():
+		scp_exec((localpath, f'{host}:{remotepath}'))
+
+	def on_done():
+		window.status_message(f'{host}:{remotepath} saved')
+
+	def on_error(ex):
+		sublime.error_message(f"Error saving file via SCP.\n\n{ex}")
+
+	BackgroundWorker(
+		do_scp,
+		on_done,
+		on_error,
+		"Saving remote file",
+		window).start()

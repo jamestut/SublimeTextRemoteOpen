@@ -59,6 +59,15 @@ class RemoteFileManager():
 
 		ScpUtils.scp_download_to_tempfile(window, host, remotepath, on_finish)
 
+	def save_remote_ssh_path(self, viewid):
+		info = self.get_info(viewid)
+		if info is None:
+			return
+
+		print("SAVE!!")
+
+		ScpUtils.scp_save_to_remote(info.view.window(), host, remotepath, localpath)
+
 	def open_remote_path(self, window, query):
 		splt = query.split(":", 1)
 		if len(splt) == 2:
