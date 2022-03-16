@@ -9,10 +9,10 @@ As this extension was developed in a hurry, there are significant limitations:
 
 - Opened remote files are read-only.
 - Passwords and any form of interactive authentication methods are not supported.
-- Works synchronously, therefore main Sublime Text UI will block (unresponsive) while the remote file is being fetched.
-  - Not possible to cancel the in-progress operation.
+- Not possible to cancel in-progress operation.
 - Only tested on Unix based systems (macOS/Linux).
 - Uses the `scp` command, therefore the client must have OpenSSH client installed and the server must support `scp`.
+- Only single instance of the same file can open.
 
 These limitations will be fixed in future commits.
 
