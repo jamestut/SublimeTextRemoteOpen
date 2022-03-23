@@ -7,7 +7,6 @@ Requires Sublime Text 4 build 4075 or newer.
 
 As this extension was developed in a hurry, there are significant limitations:
 
-- Opened remote files are read-only.
 - Passwords and any form of interactive authentication methods are not supported.
 - Not possible to cancel in-progress operation.
 - Only tested on Unix based systems (macOS/Linux).
