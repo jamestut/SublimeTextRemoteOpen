@@ -7,7 +7,15 @@ class RemoteOpenSsh(sublime_plugin.WindowCommand):
 	def run(self):
 		def on_done(v):
 			manager.open_remote_path(self.window, v)
-		self.window.show_input_panel("Remote file to open", "host:/path/to/file",
+
+		# determine default text
+		def_text = "host:/path/to/file"
+		curr_view = self.window.active_view()
+		if curr_view is not None:
+			info = manager.get_info(curr_view.id())
+			if info is not None:
+				def_text = f"{info.host}:{info.remotepath}"
+		self.window.show_input_panel("Remote file to open", def_text,
 				on_done, None, None)
 
 class TabContextCopyRemotePath(sublime_plugin.WindowCommand):

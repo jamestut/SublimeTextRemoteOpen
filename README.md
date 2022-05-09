@@ -27,6 +27,7 @@ Simply `git clone` this repo to Sublime Text's package directory! The `main` bra
 - Open the Sublime Text's Command Palette (<kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> or <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> by default), and select **Remote Open: Open File using SSH**.
 - Enter the remote path that you want to open, in form of `<host>:<path>`.
   - `<host>` can be either `hostname` only or `username@hostname`.
+    - `<host>` can be omitted if invoking the command from a currently opened remote file or from a window that had invoked the remote open command successfully.
   - `<path>` is the absolute path of remote file.
-  - The `<host>` part can be omitted in subsequent remote file open *in the same Sublime Text window*. This will use the last used `<host>`.
+    - `<path>` can be relative to the currently opened remote file.
 - To copy the full path of remote file, right click on the tab and select **Copy Remote Path**.

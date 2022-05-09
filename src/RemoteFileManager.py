@@ -69,17 +69,40 @@ class RemoteFileManager():
 			info.host, info.remotepath, info.localpath)
 
 	def open_remote_path(self, window, query):
+		if query.strip() == "":
+			# assume cancel
+			return
 		splt = query.split(":", 1)
+
+		# for hostname, prioritize current view first, then current window
+		curr_view = window.active_view()
+		info = self.get_info(curr_view.id()) if curr_view else None
+		default_host = info.host if info else self._last_hostname.get(window.id(), None)
+		# for the default dir, only consider curent view
+		# we don't store default_dir for current window because it will be an extra work
+		# to determine whether the file loading were successful or not
+		default_dir = os.path.split(info.remotepath)[0] if info else None
+
 		if len(splt) == 2:
 			host, remotepath = splt
-			self._last_hostname[window.id()] = host
-			self.open_remote_ssh_path(window, host, remotepath)
-		else:
-			host = self._last_hostname.get(window.id(), None)
-			if host is None:
-				sublime.error_message("Please specify host name!"
-					" You can omit hostname for the consequent open requests.")
+		elif len(splt) == 1:
+			host, remotepath = None, splt[0]
+
+		if host is None:
+			host = default_host
+		if remotepath[0] != "/":
+			if default_dir is None:
+				sublime.error_message("Please specify absolute path!"
+					" You can specify relative path for the consequent open reqeuests.")
 				return
-			self.open_remote_ssh_path(window, host, query)
+			remotepath = os.path.join(default_dir, remotepath)
+
+		if host is None:
+			sublime.error_message("Please specify host name!"
+				" You can omit hostname for the consequent open requests.")
+			return
+
+		self._last_hostname[window.id()] = host
+		self.open_remote_ssh_path(window, host, remotepath)
 
 manager = RemoteFileManager()
