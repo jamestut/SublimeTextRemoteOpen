@@ -21,15 +21,47 @@ class RemoteFileManager():
 		# map key: window id | value: last opened hostname
 		self._last_hostname = {}
 
+		self._ppathmap = None
+
+	def _persisted_pathmap(self):
+		if self._ppathmap is None:
+			ret = State.load().setdefault("pathmap", {})
+			# convert all list to tuple
+			for k, v in ret.items():
+				if type(v) is list:
+					ret[k] = tuple(v)
+			self._ppathmap = ret
+		return self._ppathmap
+
+	def load_persistence(self):
+		# load pathmap and rpathmap
+		ppathmap = self._persisted_pathmap()
+		nonexistent = []
+		for localpath, pathkey in ppathmap.items():
+			# we store these temp files in OS temporary folder, which might be regularly
+			# cleaned up. If we didn't find such files, stop managing it
+			if not os.path.exists(localpath):
+				nonexistent.append(localpath)
+				continue
+			self._pathmap[pathkey] = [localpath, 0]
+			self._rpathmap[localpath] = pathkey
+
+		if nonexistent:
+			for v in nonexistent:
+				del ppathmap[v]
+			State.persist()
+
 	def _unmanage(self, host, remotepath):
 		"""
 		Stop managing the given file
 		"""
-		# TODO: persist
 		pathkey = (host, remotepath)
 		localpath, _ = self._pathmap[pathkey]
 		del self._pathmap[pathkey]
 		del self._rpathmap[localpath]
+
+		del self._persisted_pathmap()[localpath]
+		State.persist()
 
 		try:
 			delete_temp_file(localpath)
@@ -37,11 +69,13 @@ class RemoteFileManager():
 			sublime.error_message(f"Error deleting temporary file '{info.localpath}': {ex}")
 
 	def _manage(self, host, remotepath, localpath, initrefcount=0):
-		# TODO: persist
 		assert localpath not in self._rpathmap
 		pathkey = (host, remotepath)
 		self._pathmap[pathkey] = [localpath, initrefcount]
 		self._rpathmap[localpath] = pathkey
+
+		self._persisted_pathmap()[localpath] = pathkey
+		State.persist()
 
 	def handle_view_closed(self, view):
 		buff = view.buffer()
@@ -70,8 +104,8 @@ class RemoteFileManager():
 	def handle_view_opened(self, view):
 		buff = view.buffer()
 		buffid = buff.id()
-		if buffid in self._bidmap:
-			# already managed
+		if buffid in self._bidmap or buff.file_name() is None:
+			# already managed or new unsaved file
 			return
 
 		# is the localpath something that we manage?
