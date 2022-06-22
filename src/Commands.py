@@ -38,12 +38,13 @@ class TabContextCopyRemotePath(CommonContextCmd):
 
 class ReloadRemote(CommonContextCmd):
 	def run(self, group=-1, index=-1):
-		# TODO: use new paradigm
-		raise NotImplementedException()
-		info = self._get_info(group, index)
+		view = self._get_view(group, index)
+		info = manager.get_view_pathkey(view)
 		if info is None:
 			return
-		ScpUtils.scp_download(self.window, info.host, info.remotepath, info.localpath, None)
+		host, remotepath = info
+		localpath = view.buffer().file_name()
+		ScpUtils.scp_download(self.window, host, remotepath, localpath, None)
 
 	def is_visible(self, group=-1, index=-1):
 		return manager.is_view_managed(self._get_view(group, index))
