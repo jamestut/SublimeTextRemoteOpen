@@ -10,8 +10,6 @@ As this extension was developed in a hurry, there are significant limitations:
 - Passwords and any form of interactive authentication methods are not supported.
 - Not possible to cancel in-progress operation.
 - Only tested on Unix based systems (macOS/Linux).
-- Uses the `scp` command, therefore the client must have OpenSSH client installed and the server must support `scp`.
-- Only single instance of the same file can open.
 
 These limitations will be fixed in future commits.
 
@@ -31,3 +29,12 @@ Simply `git clone` this repo to Sublime Text's package directory! The `main` bra
   - `<path>` is the absolute path of remote file.
     - `<path>` can be relative to the currently opened remote file.
 - To copy the full path of remote file, right click on the tab and select **Copy Remote Path**.
+
+## System Requirements
+
+### Client Side
+
+- Sublime Text 4 (tested only on build 4075 and newer).
+- SSH and SCP.
+  - Authentication must be passwordless (master connections are supported).
+- macOS or Linux only.
