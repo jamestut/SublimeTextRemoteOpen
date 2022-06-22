@@ -122,6 +122,9 @@ class RemoteFileManager():
 	def get_view_pathkey(self, view):
 		return self._bidmap.get(view.buffer_id(), None)
 
+	def get_all_opened(self):
+		return list(self._pathmap)
+
 	def open_remote_ssh_path(self, window, host, remotepath):
 		pathkey = (host, remotepath)
 		status = self._pathmap.get(pathkey, None)

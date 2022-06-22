@@ -6,5 +6,9 @@
 	{
 		"caption": "Remote Open SSH: Reload Remote File",
 		"command": "remote_ssh_reload"
+	},
+	{
+		"caption": "Remote Open SSH: Show Opened Files",
+		"command": "remote_ssh_show_opened"
 	}
 ]

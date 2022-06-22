@@ -48,3 +48,16 @@ class RemoteSshReload(CommonContextCmd):
 
 	def is_visible(self, group=-1, index=-1):
 		return manager.is_view_managed(self._get_view(group, index))
+
+class RemoteSshShowOpened(sublime_plugin.WindowCommand):
+	def run(self, *args):
+		opened = manager.get_all_opened()
+
+		def on_select(idx):
+			if idx < 0:
+				return
+			host, remotepath = opened[idx]
+			manager.open_remote_ssh_path(self.window, host, remotepath)
+
+		self.window.show_quick_panel([f"{host}:{remotepath}"
+			for host, remotepath in opened], on_select)
