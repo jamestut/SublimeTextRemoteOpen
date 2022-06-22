@@ -3,7 +3,7 @@ import sublime_plugin
 from .RemoteFileManager import manager
 from . import ScpUtils
 
-class RemoteOpenSsh(sublime_plugin.WindowCommand):
+class RemoteSshOpen(sublime_plugin.WindowCommand):
 	def run(self):
 		def on_done(v):
 			manager.open_remote_path(self.window, v)
@@ -26,7 +26,7 @@ class CommonContextCmd(sublime_plugin.WindowCommand):
 		else:
 			return self.window.views_in_group(group)[index]
 
-class TabContextCopyRemotePath(CommonContextCmd):
+class RemoteSshTabContextCopyRemotePath(CommonContextCmd):
 	def run(self, group, index):
 		info = manager.get_view_pathkey(self._get_view(group, index))
 		if info is not None:
@@ -36,7 +36,7 @@ class TabContextCopyRemotePath(CommonContextCmd):
 	def is_visible(self, group, index):
 		return manager.is_view_managed(self._get_view(group, index))
 
-class ReloadRemote(CommonContextCmd):
+class RemoteSshReload(CommonContextCmd):
 	def run(self, group=-1, index=-1):
 		view = self._get_view(group, index)
 		info = manager.get_view_pathkey(view)

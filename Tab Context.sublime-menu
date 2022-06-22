@@ -3,13 +3,13 @@
 	{
 		"caption": "Copy Remote Path",
 		"id": "tab-context-copy-remote-path",
-		"command": "tab_context_copy_remote_path",
+		"command": "remote_ssh_tab_context_copy_remote_path",
 		"args": { "group": -1, "index": -1 }
 	},
-  {
+	{
 		"caption": "Reload Remote File",
 		"id": "tab-context-reload-remote",
-		"command": "reload_remote",
+		"command": "remote_ssh_reload",
 		"args": { "group": -1, "index": -1 }
 	}
 ]

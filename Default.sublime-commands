@@ -1,10 +1,10 @@
 [
-    {
-        "caption": "Remote Open: Open File using SSH",
-        "command": "remote_open_ssh"
-    },
-    {
-        "caption": "Remote Open: Reload Remote File",
-        "command": "reload_remote"
-    }
+	{
+		"caption": "Remote Open SSH: Open File",
+		"command": "remote_ssh_open"
+	},
+	{
+		"caption": "Remote Open SSH: Reload Remote File",
+		"command": "remote_ssh_reload"
+	}
 ]
