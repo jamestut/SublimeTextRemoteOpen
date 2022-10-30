@@ -145,7 +145,7 @@ class RemoteFileManager():
 
 	def save_remote_ssh_path(self, view):
 		buffid = view.buffer_id()
-		pathkey = self._bidmap[buffid]
+		pathkey = self._bidmap.get(buffid, None)
 		if pathkey is None:
 			return
 		host, remotepath = pathkey
