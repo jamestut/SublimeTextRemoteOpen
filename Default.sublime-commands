@@ -10,5 +10,15 @@
 	{
 		"caption": "Remote Open SSH: Show Opened Files",
 		"command": "remote_ssh_show_opened"
+	},
+	{
+		"caption": "Remote Open SSH: Copy Remote Path",
+		"command": "remote_ssh_copy_path",
+		"args": { "lineno": false }
+	},
+	{
+		"caption": "Remote Open SSH: Copy Remote Path With Line Number",
+		"command": "remote_ssh_copy_path",
+		"args": { "lineno": true }
 	}
 ]
