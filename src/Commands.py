@@ -36,6 +36,17 @@ class RemoteSshTabContextCopyRemotePath(CommonContextCmd):
 	def is_visible(self, group, index):
 		return manager.is_view_managed(self._get_view(group, index))
 
+class RemoteSshTextContextCopyRemotePath(sublime_plugin.TextCommand):
+	def run(self, edit):
+		lineno = self.view.rowcol(self.view.sel()[0].begin())[0] + 1
+		info = manager.get_view_pathkey(self.view)
+		if info is not None:
+			_, remotepath = info
+			sublime.set_clipboard(f'{remotepath}:{lineno}')
+
+	def is_visible(self):
+		return manager.is_view_managed(self.view) and bool(self.view.sel())
+
 class RemoteSshReload(CommonContextCmd):
 	def run(self, group=-1, index=-1):
 		view = self._get_view(group, index)

@@ -1,0 +1,6 @@
+[
+	{
+		"caption": "Copy Remote Path With Line Number",
+		"command": "remote_ssh_text_context_copy_remote_path"
+	}
+]
