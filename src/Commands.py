@@ -8,16 +8,9 @@ class RemoteSshOpen(sublime_plugin.WindowCommand):
 		def on_done(v):
 			manager.open_remote_path(self.window, v)
 
-		# determine default text
-		def_text = "host:/path/to/file"
-		curr_view = self.window.active_view()
-		if curr_view is not None:
-			info = manager.get_view_pathkey(curr_view)
-			if info is not None:
-				host, remotepath = info
-				def_text = f"{host}:{remotepath}"
-		self.window.show_input_panel("Remote file to open", def_text,
-				on_done, None, None)
+		view = self.window.active_view()
+		self.window.show_input_panel("Remote file to open",
+				manager.default_prefill(view), on_done, None, None)
 
 class CommonContextCmd(sublime_plugin.WindowCommand):
 	def _get_view(self, group, index):

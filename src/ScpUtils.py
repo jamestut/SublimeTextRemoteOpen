@@ -14,13 +14,14 @@ def scp_exec(pargs):
 	except subprocess.CalledProcessError as ex:
 		raise RuntimeError(ex.stderr.decode('utf8'))
 
-def scp_download(window, host, remotepath, localpath, on_done):
-	def on_error(ex):
+def scp_download(window, host, remotepath, localpath, on_done, on_error):
+	def on_error_int(ex):
 		sublime.error_message(f"Error SCP to local. Note that password authentication is not supported.\n\n{ex}")
 		try:
 			TempFileUtils.delete_temp_file(localpath)
 		except:
 			pass
+		on_error(ex)
 
 	def do_scp(pargs):
 		scp_exec(pargs)
@@ -29,19 +30,21 @@ def scp_download(window, host, remotepath, localpath, on_done):
 	BackgroundWorker(
 		lambda: do_scp((f'{host}:{remotepath}', localpath)),
 		on_done,
-		on_error,
+		on_error_int,
 		"Downloading remote file",
 		window).start()
 
-def scp_download_to_tempfile(window, host, remotepath, on_done):
+def scp_download_to_tempfile(window, host, remotepath, on_done, on_error):
 	try:
 		localpath = TempFileUtils.create_temp_file(host, remotepath)
 	except Exception as ex:
 		sublime.error_message(f"Error creating temporary directory: {ex}")
-		return None
+		return False
 	print(f"SCP destination: {localpath}")
 
-	scp_download(window, host, remotepath, localpath, on_done)
+	scp_download(window, host, remotepath, localpath, on_done, on_error)
+	# we succeeded in *creating* the download job, but not the download job itself!
+	return True
 
 def scp_save_to_remote(window, host, remotepath, localpath):
 	def do_scp():

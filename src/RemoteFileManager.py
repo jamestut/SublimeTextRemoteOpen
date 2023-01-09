@@ -21,6 +21,10 @@ class RemoteFileManager():
 		# map key: window id | value: last opened hostname
 		self._last_hostname = {}
 
+		# map key: window id | value: last entered text that failed
+		# we want user to be able to easily revise things if they entered things errorneously
+		self._last_failed_entry = {}
+
 		self._ppathmap = None
 
 	def _persisted_pathmap(self):
@@ -125,23 +129,25 @@ class RemoteFileManager():
 	def get_all_opened(self):
 		return list(self._pathmap)
 
-	def open_remote_ssh_path(self, window, host, remotepath):
+	def open_remote_ssh_path(self, window, host, remotepath, on_finish, on_error):
 		pathkey = (host, remotepath)
 		status = self._pathmap.get(pathkey, None)
 		if status is not None:
 			# we already manage this file: open it instead of redownloading
 			window.open_file(status[0], sublime.NewFileFlags.FORCE_GROUP)
-			return
+			on_finish()
+			return True
 
-		def on_finish(localpath):
-			if localpath is not None:
-				# canonicalize file name, resolving symlinks, etc
-				localpath = os.path.realpath(localpath)
-				self._manage(host, remotepath, localpath)
-				window.open_file(localpath)
-				print(f"Opened {host}:{remotepath} as {localpath}")
+		def on_finish_int(localpath):
+			# canonicalize file name, resolving symlinks, etc
+			localpath = os.path.realpath(localpath)
+			self._manage(host, remotepath, localpath)
+			window.open_file(localpath)
+			print(f"Opened {host}:{remotepath} as {localpath}")
+			on_finish()
 
-		ScpUtils.scp_download_to_tempfile(window, host, remotepath, on_finish)
+		return ScpUtils.scp_download_to_tempfile(window, host, remotepath,
+			on_finish_int, on_error)
 
 	def save_remote_ssh_path(self, view):
 		buffid = view.buffer_id()
@@ -153,6 +159,14 @@ class RemoteFileManager():
 		ScpUtils.scp_save_to_remote(view.window(), host, remotepath, localpath)
 
 	def open_remote_path(self, window, query):
+		def on_success(*args):
+			# clear user's failed entered input
+			if window.id() in self._last_failed_entry:
+				del self._last_failed_entry[window.id()]
+
+		def on_error(*args):
+			self._last_failed_entry[window.id()] = query
+
 		if query.strip() == "":
 			# assume cancel
 			return
@@ -178,15 +192,39 @@ class RemoteFileManager():
 			if default_dir is None:
 				sublime.error_message("Please specify absolute path!"
 					" You can specify relative path for the consequent open reqeuests.")
+				on_error()
 				return
 			remotepath = os.path.join(default_dir, remotepath)
 
 		if host is None:
 			sublime.error_message("Please specify host name!"
 				" You can omit hostname for the consequent open requests.")
+			on_error()
 			return
 
 		self._last_hostname[window.id()] = host
-		self.open_remote_ssh_path(window, host, remotepath)
+		if not self.open_remote_ssh_path(window, host, remotepath, on_success, on_error):
+			sublime.error_message("Error creating temporary file.")
+			on_error()
+			return
+
+	def default_prefill(self, view):
+		# returns the default prefilled text when user invokes the SSH open command
+		default = "host:/path/to/file"
+		if view is None:
+			return default
+
+		# prioritize what user's entered previously if failing (unique per window)
+		window = view.window()
+		if window and window.id() in self._last_failed_entry:
+			return self._last_failed_entry[window.id()]
+
+		# otherwise, show the current view's remote path
+		info = self.get_view_pathkey(view)
+		if info is not None:
+			host, remotepath = info
+			return f"{host}:{remotepath}"
+
+		return default
 
 manager = RemoteFileManager()
