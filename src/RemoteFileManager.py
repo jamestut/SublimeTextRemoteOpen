@@ -134,7 +134,7 @@ class RemoteFileManager():
 		status = self._pathmap.get(pathkey, None)
 		if status is not None:
 			# we already manage this file: open it instead of redownloading
-			window.open_file(status[0], sublime.NewFileFlags.FORCE_GROUP)
+			window.open_file(status[0])
 			on_finish()
 			return True
 

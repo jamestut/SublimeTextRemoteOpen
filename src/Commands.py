@@ -44,7 +44,7 @@ class RemoteSshReload(CommonContextCmd):
 			return
 		host, remotepath = info
 		localpath = view.buffer().file_name()
-		ScpUtils.scp_download(self.window, host, remotepath, localpath, None)
+		ScpUtils.scp_download(self.window, host, remotepath, localpath, None, None)
 
 	def is_visible(self, group=-1, index=-1):
 		return manager.is_view_managed(self._get_view(group, index))
